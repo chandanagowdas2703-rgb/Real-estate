@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Edit listing' if prop else 'Add listing' }}{% endblock %}
+{% block content %}
+<div class="container py-4" style="max-width: 900px;">
+  <h1 class="h3 mb-1">{{ 'Edit listing' if prop else 'Add a new listing' }}</h1>
+  <p class="text-muted">{{ 'Saving changes sends the listing back for admin approval.' if prop else 'New listings are reviewed by an admin before they go public.' }}</p>
+
+  <form method="post" enctype="multipart/form-data" class="side-card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="row g-3">
+      <div class="col-12"><label class="form-label">Title *</label>
+        <input name="title" class="form-control" required maxlength="150" value="{{ v.get('title','') }}"></div>
+      <div class="col-12"><label class="form-label">Description *</label>
+        <textarea name="description" rows="5" class="form-control" required>{{ v.get('description','') }}</textarea></div>
+
+      <div class="col-md-4"><label class="form-label">Property type *</label>
+        <select name="property_type" class="form-select" required>
+          {% for t in PROPERTY_TYPES %}<option {{ 'selected' if v.get('property_type')==t }}>{{ t }}</option>{% endfor %}
+        </select></div>
+      <div class="col-md-4"><label class="form-label">Listing type *</label>
+        <select name="listing_type" class="form-select" required>
+          <option value="sale" {{ 'selected' if v.get('listing_type')=='sale' }}>For sale</option>
+          <option value="rent" {{ 'selected' if v.get('listing_type')=='rent' }}>For rent</option>
+        </select></div>
+      <div class="col-md-4"><label class="form-label">Price (₹) * <span class="text-muted small">(rent: per month)</span></label>
+        <input type="number" name="price" min="1" step="any" class="form-control" required value="{{ v.get('price','') }}"></div>
+
+      <div class="col-md-4"><label class="form-label">Bedrooms</label>
+        <input type="number" name="bedrooms" min="0" class="form-control" value="{{ v.get('bedrooms', 0) }}"></div>
+      <div class="col-md-4"><label class="form-label">Bathrooms</label>
+        <input type="number" name="bathrooms" min="0" class="form-control" value="{{ v.get('bathrooms', 0) }}"></div>
+      <div class="col-md-4"><label class="form-label">Area (sq ft)</label>
+        <input type="number" name="area" min="0" step="any" class="form-control" value="{{ v.get('area', 0) }}"></div>
+
+      <div class="col-12"><label class="form-label">Street address *</label>
+        <input name="address" class="form-control" required value="{{ v.get('address','') }}"></div>
+      <div class="col-md-4"><label class="form-label">City *</label>
+        <input name="city" class="form-control" required value="{{ v.get('city','') }}"></div>
+      <div class="col-md-4"><label class="form-label">State *</label>
+        <input name="state" class="form-control" required value="{{ v.get('state','') }}"></div>
+      <div class="col-md-4"><label class="form-label">Pincode</label>
+        <input name="pincode" class="form-control" pattern="\d{6}" title="6 digits" value="{{ v.get('pincode','') or '' }}"></div>
+
+      <div class="col-12">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" name="is_furnished" id="furn" {{ 'checked' if v.get('is_furnished') }}>
+          <label class="form-check-label" for="furn">Furnished</label>
+        </div>
+      </div>
+
+      <div class="col-12"><label class="form-label">Amenities</label>
+        <div class="row">
+          {% for am in amenities %}
+          <div class="col-6 col-md-4"><div class="form-check">
+            <input class="form-check-input" type="checkbox" name="amenities" value="{{ am.id }}" id="am{{ am.id }}" {{ 'checked' if am.id in chosen }}>
+            <label class="form-check-label" for="am{{ am.id }}">{{ am.name }}</label></div></div>
+          {% endfor %}
+        </div></div>
+
+      <div class="col-12"><label class="form-label">Add images (png, jpg, gif, webp - up to 8 at a time)</label>
+        <input type="file" name="images" class="form-control" accept="image/*" multiple id="imageInput">
+        <div class="d-flex gap-2 flex-wrap mt-2" id="preview"></div></div>
+
+      {% if prop and prop.images %}
+      <div class="col-12"><label class="form-label">Current images</label>
+        <div class="d-flex flex-wrap gap-3">
+          {% for img in prop.images %}
+          <div class="current-img">
+            <img src="{{ url_for('static', filename=img.image_url) }}" alt="">
+            {% if img.is_main %}<span class="badge text-bg-dark">Main</span>{% endif %}
+            {# formaction lets this button post to a different URL without nesting forms #}
+            <button type="submit" class="btn btn-sm btn-danger" formnovalidate
+                    formaction="{{ url_for('delete_image', image_id=img.id) }}"
+                    onclick="return confirm('Remove this image?')"><i class="bi bi-trash"></i></button>
+          </div>
+          {% endfor %}
+        </div></div>
+      {% endif %}
+    </div>
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-pine">{{ 'Save changes' if prop else 'Submit listing' }}</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('seller_dashboard') }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

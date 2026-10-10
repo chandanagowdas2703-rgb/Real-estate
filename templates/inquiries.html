@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Inquiries{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h3 mb-4">{{ 'Inquiries received' if current_user.role == 'seller' else 'Inquiries you sent' }}</h1>
+  {% if inquiries %}
+  <div class="vstack gap-3">
+    {% for i in inquiries %}
+    <div class="side-card">
+      <div class="d-flex justify-content-between flex-wrap gap-2">
+        <div>
+          <a class="fw-semibold" href="{{ url_for('property_detail', property_id=i.property_id) }}">{{ i.property.title }}</a>
+          {% if current_user.role == 'seller' %}
+            <div class="small text-muted">From {{ i.buyer.full_name }} &middot; {{ i.buyer.email }}{% if i.contact_phone %} &middot; {{ i.contact_phone }}{% endif %}</div>
+          {% else %}
+            <div class="small text-muted">To {{ i.seller.full_name }}</div>
+          {% endif %}
+        </div>
+        <div class="text-end small text-muted">{{ i.created_at.strftime('%d %b %Y, %H:%M') }}<br>
+          <span class="badge {{ 'text-bg-warning' if i.status == 'new' else 'text-bg-secondary' }}">{{ i.status }}</span></div>
+      </div>
+      <p class="mt-2 mb-2" style="white-space: pre-line;">{{ i.message }}</p>
+      {% if current_user.role == 'seller' and i.status == 'new' %}
+      <form method="post" action="{{ url_for('mark_inquiry_read', inquiry_id=i.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-sm btn-outline-secondary">Mark as read</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">No inquiries yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

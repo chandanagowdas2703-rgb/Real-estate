@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-labelledby="title">
+  <title id="title">HomeFinder mark</title>
+  <rect width="80" height="80" rx="18" fill="#DFF2FA"/>
+  <path d="M14 39 40 17l26 22v25H47V48H33v16H14V39Z" fill="#087481"/>
+  <path d="m10 39 30-25 30 25" fill="none" stroke="#20AFC1" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+  <path d="M53 28v-9h10v17" fill="none" stroke="#087481" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+  <rect x="36" y="50" width="8" height="14" rx="1" fill="#DFF2FA"/>
+</svg>

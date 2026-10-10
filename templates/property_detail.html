@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}{{ prop.title }}{% endblock %}
+{% block content %}
+<div class="container py-4">
+  {% if prop.status != 'approved' %}
+  <div class="alert alert-warning">This listing is <strong>{{ prop.status }}</strong> and only visible to you (owner/admin).</div>
+  {% endif %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      {# ---- image gallery (Bootstrap carousel + thumbnails) ---- #}
+      {% set imgs = prop.images if prop.images else [] %}
+      <div id="gallery" class="carousel slide gallery" data-bs-ride="false">
+        <div class="carousel-inner">
+          {% for img in imgs %}
+          <div class="carousel-item {{ 'active' if loop.first }}"><img src="{{ url_for('static', filename=img.image_url) }}" class="d-block w-100" alt="Photo {{ loop.index }}"></div>
+          {% else %}
+          <div class="carousel-item active"><img src="{{ url_for('static', filename='images/placeholder1.svg') }}" class="d-block w-100" alt="Placeholder"></div>
+          {% endfor %}
+        </div>
+        {% if imgs|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#gallery" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+        <button class="carousel-control-next" type="button" data-bs-target="#gallery" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+        {% endif %}
+      </div>
+      {% if imgs|length > 1 %}
+      <div class="d-flex gap-2 mt-2 flex-wrap thumbs">
+        {% for img in imgs %}
+        <img src="{{ url_for('static', filename=img.image_url) }}" alt="" data-bs-target="#gallery" data-bs-slide-to="{{ loop.index0 }}">
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="d-flex justify-content-between align-items-start mt-4 flex-wrap gap-2">
+        <div>
+          <h1 class="h3 mb-1">{{ prop.title }}</h1>
+          <p class="text-muted mb-0"><i class="bi bi-geo-alt"></i> {{ prop.address }}, {{ prop.city }}, {{ prop.state }} {{ prop.pincode or '' }}</p>
+        </div>
+        <div class="text-end">
+          <div class="price price-lg">{{ prop.price|money }}{% if prop.listing_type == 'rent' %}<small>/month</small>{% endif %}</div>
+          <span class="badge badge-{{ prop.listing_type }}">For {{ prop.listing_type }}</span>
+        </div>
+      </div>
+
+      <div class="row g-3 my-3 facts">
+        <div class="col-6 col-md-3"><div class="fact"><i class="bi bi-door-open"></i><strong>{{ prop.bedrooms }}</strong>Bedrooms</div></div>
+        <div class="col-6 col-md-3"><div class="fact"><i class="bi bi-droplet"></i><strong>{{ prop.bathrooms }}</strong>Bathrooms</div></div>
+        <div class="col-6 col-md-3"><div class="fact"><i class="bi bi-arrows-fullscreen"></i><strong>{{ '%.0f'|format(prop.area) }}</strong>Sq ft</div></div>
+        <div class="col-6 col-md-3"><div class="fact"><i class="bi bi-building"></i><strong>{{ prop.property_type }}</strong>{{ 'Furnished' if prop.is_furnished else 'Unfurnished' }}</div></div>
+      </div>
+
+      <h2 class="h5">Description</h2>
+      <p style="white-space: pre-line;">{{ prop.description }}</p>
+
+      <h2 class="h5 mt-4">Amenities</h2>
+      {% if prop.amenities %}
+      <div class="d-flex flex-wrap gap-2">{% for am in prop.amenities %}<span class="amenity"><i class="bi bi-check2"></i> {{ am.name }}</span>{% endfor %}</div>
+      {% else %}<p class="text-muted">No amenities listed.</p>{% endif %}
+
+      <h2 class="h5 mt-4">Location</h2>
+      <div class="map-placeholder"><i class="bi bi-map"></i><span>Map placeholder - Google Maps can be added here (see README)</span></div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="side-card mb-4">
+        <h2 class="h6">Listed by</h2>
+        <p class="mb-1 fw-semibold">{{ prop.owner.full_name }}</p>
+        {% if prop.owner.phone %}<p class="mb-1 small"><i class="bi bi-telephone"></i> {{ prop.owner.phone }}</p>{% endif %}
+        <p class="mb-0 small"><i class="bi bi-envelope"></i> {{ prop.owner.email }}</p>
+      </div>
+
+      <div class="side-card">
+        <h2 class="h6">Send an inquiry</h2>
+        {% if not current_user.is_authenticated %}
+          <p class="small text-muted">Log in as a buyer to message the seller.</p>
+          <a class="btn btn-pine w-100" href="{{ url_for('login', next=request.path) }}">Log in</a>
+        {% elif current_user.role == 'buyer' and prop.status == 'approved' %}
+          <form method="post" action="{{ url_for('send_inquiry', property_id=prop.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <textarea class="form-control mb-2" name="message" rows="4" required minlength="10" placeholder="Hi, I'm interested in this property..."></textarea>
+            <input class="form-control mb-2" name="contact_phone" placeholder="Your phone (optional)" value="{{ current_user.phone or '' }}">
+            <button class="btn btn-pine w-100">Send inquiry</button>
+          </form>
+          <form method="post" action="{{ url_for('toggle_favorite', property_id=prop.id) }}" class="mt-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-outline-secondary w-100"><i class="bi {{ 'bi-heart-fill text-danger' if prop.id in fav_ids else 'bi-heart' }}"></i> {{ 'Remove from favorites' if prop.id in fav_ids else 'Save to favorites' }}</button>
+          </form>
+        {% else %}
+          <p class="small text-muted mb-0">Only buyer accounts can send inquiries.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

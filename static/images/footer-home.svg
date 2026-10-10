@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 168" role="img" aria-labelledby="title">
+  <title id="title">A welcoming home illustration</title>
+  <path d="M31 89 120 22l89 67" fill="none" stroke="#A9DCE5" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+  <path d="M50 82v67h140V82l-70-53-70 53Z" fill="#DFF2FA"/>
+  <path d="M91 149v-48a29 29 0 0 1 58 0v48" fill="#20AFC1"/>
+  <path d="M119 107v42" stroke="#F3FAFD" stroke-width="4"/>
+  <rect x="66" y="97" width="18" height="22" rx="3" fill="#83D4E0"/>
+  <rect x="157" y="97" width="18" height="22" rx="3" fill="#83D4E0"/>
+  <path d="M20 150h200" stroke="#A9DCE5" stroke-linecap="round" stroke-width="5"/>
+  <circle cx="38" cy="137" r="8" fill="#83D4E0"/>
+  <circle cx="202" cy="137" r="8" fill="#83D4E0"/>
+</svg>

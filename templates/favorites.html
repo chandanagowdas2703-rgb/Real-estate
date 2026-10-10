@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% from '_card.html' import property_card with context %}
+{% block title %}Favorites{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h3 mb-4">Your favorites</h1>
+  {% if properties %}
+  <div class="row g-4">{% for p in properties %}<div class="col-md-6 col-lg-4">{{ property_card(p) }}</div>{% endfor %}</div>
+  {% else %}
+  <div class="empty">You have not saved anything yet. Tap the heart on a listing to keep it here.
+    <a href="{{ url_for('properties') }}">Browse properties</a></div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% from '_card.html' import property_card with context %}
+{% block title %}Find your next home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <h1>Find a place that fits your life.</h1>
+    <p class="lead">Browse homes for sale and rent, shortlist favourites, and message agents directly.</p>
+    <form class="search-bar" action="{{ url_for('properties') }}" method="get">
+      <div class="row g-2">
+        <div class="col-md-4"><input class="form-control form-control-lg" name="q" placeholder="City, area or pincode"></div>
+        <div class="col-md-3">
+          <select class="form-select form-select-lg" name="listing_type">
+            <option value="">Buy or rent</option><option value="sale">Buy</option><option value="rent">Rent</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select form-select-lg" name="property_type">
+            <option value="">Any type</option>
+            {% for t in PROPERTY_TYPES %}<option>{{ t }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2 d-grid"><button class="btn btn-brass btn-lg"><i class="bi bi-search"></i> Search</button></div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="container py-5">
+  <h2 class="section-title">Browse by property type</h2>
+  <div class="row g-3">
+    {% for t in PROPERTY_TYPES %}
+    <div class="col-6 col-md-4 col-lg-2">
+      <a class="category-tile" href="{{ url_for('properties', property_type=t) }}">
+        <img class="category-tile-image" src="{{ url_for('static', filename=PROPERTY_IMAGE_FILES[t][0]) }}" alt="" loading="lazy">
+        <span class="category-tile-copy"><strong>{{ t }}</strong><span>{{ counts.get(t, 0) }} listings</span></span>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container">
+  <div class="d-flex justify-content-between align-items-end mb-3">
+    <h2 class="section-title mb-0">Latest properties</h2>
+    <a href="{{ url_for('properties') }}">See all listings</a>
+  </div>
+  {% if featured %}
+  <div class="row g-4">
+    {% for p in featured %}<div class="col-md-6 col-lg-4">{{ property_card(p) }}</div>{% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">No approved listings yet. Run <code>python app.py seed</code> for sample data, or add a listing as a seller and approve it as admin.</div>
+  {% endif %}
+</section>
+{% endblock %}

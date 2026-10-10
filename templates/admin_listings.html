@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Manage listings{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h3 mb-3">All listings</h1>
+  <ul class="nav nav-pills mb-3">
+    {% for key, label in [('', 'All'), ('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')] %}
+    <li class="nav-item"><a class="nav-link {{ 'active' if status == key }}" href="{{ url_for('admin_listings', status=key) }}">{{ label }}</a></li>
+    {% endfor %}
+  </ul>
+  {% if properties %}
+  <div class="table-responsive side-card p-0">
+    <table class="table align-middle mb-0">
+      <thead><tr><th>Listing</th><th>Seller</th><th>Price</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+      <tbody>
+      {% for p in properties %}
+      <tr>
+        <td><a href="{{ url_for('property_detail', property_id=p.id) }}">{{ p.title }}</a><div class="small text-muted">{{ p.city }}</div></td>
+        <td>{{ p.owner.full_name }}</td>
+        <td>{{ p.price|money }}</td>
+        <td><span class="badge text-bg-{{ {'approved':'success','pending':'warning','rejected':'danger'}[p.status] }}">{{ p.status }}</span></td>
+        <td class="text-end">
+          {% if p.status != 'approved' %}
+          <form method="post" action="{{ url_for('admin_listing_action', property_id=p.id, action='approve') }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-success">Approve</button></form>
+          {% endif %}
+          {% if p.status != 'rejected' %}
+          <form method="post" action="{{ url_for('admin_listing_action', property_id=p.id, action='reject') }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-warning">Reject</button></form>
+          {% endif %}
+          <form method="post" action="{{ url_for('admin_listing_action', property_id=p.id, action='delete') }}" class="d-inline" data-confirm="Permanently delete this listing?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm btn-outline-danger">Delete</button></form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<div class="empty">No listings in this view.</div>{% endif %}
+</div>
+{% endblock %}

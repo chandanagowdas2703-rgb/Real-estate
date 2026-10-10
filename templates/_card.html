@@ -1,0 +1,30 @@
+{# Property card macro. Import with:  {% from '_card.html' import property_card with context %} #}
+{% macro property_card(p) %}
+<div class="card property-card h-100">
+  <div class="position-relative">
+    <a href="{{ url_for('property_detail', property_id=p.id) }}">
+      <img src="{{ url_for('static', filename=p.main_image_url) }}" class="card-img-top" alt="{{ p.title }}">
+    </a>
+    <span class="badge badge-{{ p.listing_type }} position-absolute top-0 start-0 m-2">For {{ p.listing_type }}</span>
+    {% if current_user.is_authenticated and current_user.role == 'buyer' %}
+    <form method="post" action="{{ url_for('toggle_favorite', property_id=p.id) }}" class="favorite-toggle position-absolute top-0 end-0 m-2" style="z-index: 2;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-light btn-sm rounded-circle" title="Save to favorites" type="submit" aria-label="Save to favorites">
+        <i class="bi {{ 'bi-heart-fill text-danger' if p.id in fav_ids else 'bi-heart' }}"></i>
+      </button>
+    </form>
+    {% endif %}
+  </div>
+  <div class="card-body position-relative">
+    <div class="price">{{ p.price|money }}{% if p.listing_type == 'rent' %}<small>/month</small>{% endif %}</div>
+    <h3 class="h6 card-title mb-1"><a class="stretched-link text-reset text-decoration-none" href="{{ url_for('property_detail', property_id=p.id) }}">{{ p.title }}</a></h3>
+    <p class="text-muted small mb-2"><i class="bi bi-geo-alt"></i> {{ p.address }}, {{ p.city }}</p>
+    <div class="d-flex flex-wrap gap-3 small meta">
+      <span><i class="bi bi-door-open"></i> {{ p.bedrooms }} bd</span>
+      <span><i class="bi bi-droplet"></i> {{ p.bathrooms }} ba</span>
+      <span><i class="bi bi-arrows-fullscreen"></i> {{ '%.0f'|format(p.area) }} sq ft</span>
+      <span><i class="bi bi-building"></i> {{ p.property_type }}</span>
+    </div>
+  </div>
+</div>
+{% endmacro %}

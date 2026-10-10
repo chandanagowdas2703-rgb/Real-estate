@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width: 520px;">
+  <h1 class="h3 mb-4">Create your account</h1>
+  <form method="post" class="side-card" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="form-label">I want to</label>
+    <div class="btn-group w-100 mb-3" role="group">
+      <input type="radio" class="btn-check" name="role" id="r1" value="buyer" {{ 'checked' if form.get('role','buyer')=='buyer' }}>
+      <label class="btn btn-outline-secondary" for="r1">Buy or rent</label>
+      <input type="radio" class="btn-check" name="role" id="r2" value="seller" {{ 'checked' if form.get('role')=='seller' }}>
+      <label class="btn btn-outline-secondary" for="r2">List properties (agent)</label>
+    </div>
+    <label class="form-label">Full name</label>
+    <input name="full_name" class="form-control mb-3" required value="{{ form.get('full_name','') }}">
+    <label class="form-label">Email</label>
+    <input type="email" name="email" class="form-control mb-3" required value="{{ form.get('email','') }}">
+    <label class="form-label">Phone (optional)</label>
+    <input name="phone" class="form-control mb-3" value="{{ form.get('phone','') }}">
+    <div class="row g-2 mb-3">
+      <div class="col-md-6"><label class="form-label">Password</label><input type="password" name="password" class="form-control" minlength="6" required></div>
+      <div class="col-md-6"><label class="form-label">Confirm</label><input type="password" name="confirm" class="form-control" minlength="6" required></div>
+    </div>
+    <button class="btn btn-pine w-100">Create account</button>
+  </form>
+  <p class="mt-3 text-center">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+instance/
+.pytest_cache/
+realestate.db
+*.sqlite
+*.sqlite3
+static/uploads/*
+!static/uploads/.gitkeep

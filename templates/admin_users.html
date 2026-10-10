@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Manage users{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h3 mb-3">Users</h1>
+  <div class="table-responsive side-card p-0">
+    <table class="table align-middle mb-0">
+      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th class="text-end">Actions</th></tr></thead>
+      <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.full_name }}</td><td>{{ u.email }}</td>
+        <td><span class="badge text-bg-{{ {'admin':'dark','seller':'primary','buyer':'secondary'}[u.role] }}">{{ u.role }}</span></td>
+        <td>{{ u.created_at.strftime('%d %b %Y') }}</td>
+        <td class="text-end">
+          {% if u.role != 'admin' %}
+          <form method="post" action="{{ url_for('admin_delete_user', user_id=u.id) }}" class="d-inline"
+                data-confirm="Delete {{ u.full_name }} and all of their listings, inquiries and favorites?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-danger">Delete</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

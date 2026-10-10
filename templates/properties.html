@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% from '_card.html' import property_card with context %}
+{% block title %}Browse properties{% endblock %}
+{% block content %}
+{% set a = request.args %}
+<div class="container py-4">
+  <div class="row g-4">
+    <aside class="col-lg-3">
+      <form method="get" class="filter-panel">
+        <h2 class="h5 mb-3">Filters</h2>
+        <label class="form-label">Location</label>
+        <input class="form-control mb-3" name="q" value="{{ a.get('q','') }}" placeholder="City, area, pincode">
+
+        <label class="form-label">Listing type</label>
+        <select class="form-select mb-3" name="listing_type">
+          <option value="">Sale or rent</option>
+          <option value="sale" {{ 'selected' if a.get('listing_type')=='sale' }}>For sale</option>
+          <option value="rent" {{ 'selected' if a.get('listing_type')=='rent' }}>For rent</option>
+        </select>
+
+        <label class="form-label">Property type</label>
+        <select class="form-select mb-3" name="property_type">
+          <option value="">Any</option>
+          {% for t in PROPERTY_TYPES %}<option {{ 'selected' if a.get('property_type')==t }}>{{ t }}</option>{% endfor %}
+        </select>
+
+        <label class="form-label">Price range (₹)</label>
+        <div class="input-group mb-3">
+          <input type="number" min="0" class="form-control" name="min_price" placeholder="Min" value="{{ a.get('min_price','') }}">
+          <input type="number" min="0" class="form-control" name="max_price" placeholder="Max" value="{{ a.get('max_price','') }}">
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="form-label">Bedrooms</label>
+            <select class="form-select" name="bedrooms">
+              <option value="">Any</option>
+              {% for n in [1,2,3,4,5] %}<option value="{{ n }}" {{ 'selected' if a.get('bedrooms')==n|string }}>{{ n }}+</option>{% endfor %}
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Bathrooms</label>
+            <select class="form-select" name="bathrooms">
+              <option value="">Any</option>
+              {% for n in [1,2,3,4] %}<option value="{{ n }}" {{ 'selected' if a.get('bathrooms')==n|string }}>{{ n }}+</option>{% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <label class="form-label">Area (sq ft)</label>
+        <div class="input-group mb-3">
+          <input type="number" min="0" class="form-control" name="min_area" placeholder="Min" value="{{ a.get('min_area','') }}">
+          <input type="number" min="0" class="form-control" name="max_area" placeholder="Max" value="{{ a.get('max_area','') }}">
+        </div>
+
+        <label class="form-label">Sort by</label>
+        <select class="form-select mb-3" name="sort">
+          <option value="newest">Newest first</option>
+          <option value="price_asc" {{ 'selected' if a.get('sort')=='price_asc' }}>Price: low to high</option>
+          <option value="price_desc" {{ 'selected' if a.get('sort')=='price_desc' }}>Price: high to low</option>
+        </select>
+
+        <div class="d-grid gap-2">
+          <button class="btn btn-pine">Apply filters</button>
+          <a class="btn btn-outline-secondary" href="{{ url_for('properties') }}">Clear</a>
+        </div>
+      </form>
+    </aside>
+
+    <section class="col-lg-9">
+      <h1 class="h4 mb-3">{{ properties|length }} propert{{ 'y' if properties|length == 1 else 'ies' }} found</h1>
+      {% if properties %}
+      <div class="row g-4">
+        {% for p in properties %}<div class="col-md-6 col-xl-4">{{ property_card(p) }}</div>{% endfor %}
+      </div>
+      {% else %}
+      <div class="empty">Nothing matches these filters. Try widening the price range or clearing the location.</div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Admin dashboard{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h3 mb-4">Admin dashboard</h1>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3"><div class="stat"><span>{{ stats.users }}</span>Users ({{ stats.buyers }} buyers, {{ stats.sellers }} sellers)</div></div>
+    <div class="col-6 col-md-3"><div class="stat"><span>{{ stats.listings }}</span>Listings</div></div>
+    <div class="col-6 col-md-3"><div class="stat"><span>{{ stats.pending }}</span>Awaiting approval</div></div>
+    <div class="col-6 col-md-3"><div class="stat"><span>{{ stats.inquiries }}</span>Inquiries sent</div></div>
+  </div>
+  <p class="text-muted">Approved: {{ stats.approved }} &middot; Rejected: {{ stats.rejected }}
+    &middot; <a href="{{ url_for('admin_listings') }}">All listings</a> &middot; <a href="{{ url_for('admin_users') }}">Manage users</a></p>
+
+  <h2 class="h5 mt-4">Pending approval</h2>
+  {% if pending %}
+  <div class="table-responsive side-card p-0">
+    <table class="table align-middle mb-0">
+      <thead><tr><th>Listing</th><th>Seller</th><th>Price</th><th>Submitted</th><th class="text-end">Decision</th></tr></thead>
+      <tbody>
+      {% for p in pending %}
+      <tr>
+        <td><a href="{{ url_for('property_detail', property_id=p.id) }}">{{ p.title }}</a><div class="small text-muted">{{ p.city }} &middot; {{ p.property_type }}</div></td>
+        <td>{{ p.owner.full_name }}</td>
+        <td>{{ p.price|money }}</td>
+        <td>{{ p.created_at.strftime('%d %b %Y') }}</td>
+        <td class="text-end">
+          {% for action, label, style in [('approve','Approve','success'), ('reject','Reject','warning')] %}
+          <form method="post" action="{{ url_for('admin_listing_action', property_id=p.id, action=action) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-{{ style }}">{{ label }}</button>
+          </form>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}<div class="empty">Nothing to review right now.</div>{% endif %}
+</div>
+{% endblock %}
